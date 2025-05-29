@@ -5,6 +5,11 @@ import PersonaDisplay from '@/components/PersonaDisplay';
 import WalletJourney from '@/components/WalletJourney';
 import RecommendationsPanel from '@/components/RecommendationsPanel';
 import RiskAssessment from '@/components/RiskAssessment';
+import PortfolioChart from '@/components/PortfolioChart';
+import ActivityTimeline from '@/components/ActivityTimeline';
+import ScoreComparison from '@/components/ScoreComparison';
+import InteractiveStats from '@/components/InteractiveStats';
+import WalletComparison from '@/components/WalletComparison';
 import { Persona } from '@/types/persona';
 
 const Index = () => {
@@ -61,10 +66,28 @@ const Index = () => {
       {/* Results Section */}
       {(currentPersona || isLoading) && (
         <div className="container mx-auto px-4 py-12">
+          {/* Main Persona Display */}
+          <div className="mb-8">
+            <PersonaDisplay persona={currentPersona} isLoading={isLoading} />
+          </div>
+
+          {/* Interactive Analytics Section */}
+          <div className="mb-8">
+            <InteractiveStats persona={currentPersona} isLoading={isLoading} />
+          </div>
+
+          {/* Charts and Visualizations Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <PortfolioChart persona={currentPersona} isLoading={isLoading} />
+            <ActivityTimeline persona={currentPersona} isLoading={isLoading} />
+            <ScoreComparison persona={currentPersona} isLoading={isLoading} />
+            <WalletComparison persona={currentPersona} isLoading={isLoading} />
+          </div>
+
+          {/* Detailed Analysis Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Persona Display */}
+            {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              <PersonaDisplay persona={currentPersona} isLoading={isLoading} />
               <WalletJourney persona={currentPersona} isLoading={isLoading} />
             </div>
 
@@ -117,6 +140,19 @@ const Index = () => {
               icon="📊"
               title="Portfolio Analytics"
               description="Deep insights into your Web3 journey, including protocol diversity, gas efficiency, and investment timeline analysis."
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <FeatureCard
+              icon="📈"
+              title="Interactive Visualizations"
+              description="Dynamic charts and graphs showing portfolio composition, activity timelines, and performance metrics with real-time updates."
+            />
+            <FeatureCard
+              icon="⚔️"
+              title="Wallet Comparison"
+              description="Compare your wallet metrics against others to identify strengths, weaknesses, and improvement opportunities."
             />
           </div>
         </div>
