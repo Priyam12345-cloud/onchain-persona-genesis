@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Persona } from '@/types/persona';
 import { PersonaAnalysisService } from '@/services/personaAnalysisService';
@@ -53,11 +52,17 @@ export const useWalletAnalysis = () => {
         description: "Failed to analyze wallet. Using demo data for now.",
         variant: "destructive"
       });
-      
-      // Fallback to mock data if real analysis fails
-      const { generateMockPersona } = await import('@/utils/mockData');
-      const mockPersona = generateMockPersona(address);
-      setPersona(mockPersona);
+      // Fallback to backend API if real analysis fails
+      try {
+        const res = await fetch(`/api/persona/${address}`);
+        const persona = await res.json();
+        setPersona(persona);
+      } catch (apiError) {
+        // Fallback to mock data if backend also fails
+        const { generateMockPersona } = await import('@/utils/mockData');
+        const mockPersona = generateMockPersona(address);
+        setPersona(mockPersona);
+      }
     } finally {
       setIsAnalyzing(false);
     }
