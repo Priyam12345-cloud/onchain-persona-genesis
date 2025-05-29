@@ -28,13 +28,27 @@ const Index = () => {
           <div className="text-center mb-12">
             <h1 className="text-6xl font-bold text-white mb-6">
               <span className="web3-gradient bg-clip-text text-transparent">
-                Wallet Persona Engine
+                AI Wallet Persona Engine
               </span>
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Discover the story behind any Web3 wallet. Our AI analyzes on-chain behavior 
-              to generate unique personas, risk assessments, and personalized recommendations.
+              Real-time blockchain analysis powered by AI. Discover the story behind any Web3 wallet 
+              through actual on-chain data, transaction patterns, and behavioral insights.
             </p>
+            <div className="mt-6 flex justify-center space-x-4 text-sm text-gray-400">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span>Live Blockchain Data</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span>AI-Powered Analysis</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span>Real-time Insights</span>
+              </div>
+            </div>
           </div>
 
           <WalletInput 
@@ -63,24 +77,46 @@ const Index = () => {
         </div>
       )}
 
-      {/* Features Section */}
+      {/* Enhanced Features Section */}
       {!currentPersona && !isLoading && (
         <div className="container mx-auto px-4 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Real Blockchain Intelligence
+            </h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Our engine connects to live blockchain data to provide authentic insights into wallet behavior and Web3 activity patterns.
+            </p>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard
-              icon="🧠"
-              title="AI-Powered Analysis"
-              description="Advanced machine learning algorithms analyze transaction patterns, DeFi interactions, and NFT collections to create detailed profiles."
+              icon="🔗"
+              title="Live Blockchain Data"
+              description="Direct integration with Ethereum mainnet, fetching real transaction history, NFT holdings, and DeFi interactions in real-time."
             />
             <FeatureCard
-              icon="📊"
-              title="Risk Assessment"
-              description="Comprehensive risk scoring based on wallet behavior, transaction history, and interaction with protocols."
+              icon="🤖"
+              title="AI Pattern Recognition"
+              description="Advanced algorithms analyze transaction patterns, gas optimization, and protocol usage to identify behavioral traits and investment strategies."
             />
+            <FeatureCard
+              icon="📈"
+              title="Risk & Health Scoring"
+              description="Comprehensive risk assessment based on actual wallet activity, protocol diversity, and transaction consistency patterns."
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
             <FeatureCard
               icon="🎯"
               title="Smart Recommendations"
-              description="Personalized dApp and investment recommendations based on your unique on-chain persona and behavior patterns."
+              description="Personalized dApp suggestions based on your actual on-chain behavior, portfolio composition, and interaction history."
+            />
+            <FeatureCard
+              icon="📊"
+              title="Portfolio Analytics"
+              description="Deep insights into your Web3 journey, including protocol diversity, gas efficiency, and investment timeline analysis."
             />
           </div>
         </div>

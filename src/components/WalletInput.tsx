@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Search, Loader2, Sparkles } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { generateMockPersona } from '@/utils/mockData';
+import { Search, Loader2, Sparkles, Database } from 'lucide-react';
+import { useWalletAnalysis } from '@/hooks/useWalletAnalysis';
 import { Persona } from '@/types/persona';
 
 interface WalletInputProps {
@@ -15,56 +14,21 @@ interface WalletInputProps {
 
 const WalletInput: React.FC<WalletInputProps> = ({ onPersonaGenerated, onLoadingChange }) => {
   const [address, setAddress] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const { toast } = useToast();
+  const { analyzeWallet, isAnalyzing, persona } = useWalletAnalysis();
 
-  const isValidAddress = (addr: string) => {
-    return /^0x[a-fA-F0-9]{40}$/.test(addr) || addr.endsWith('.eth');
-  };
+  // Update parent component when analysis completes
+  React.useEffect(() => {
+    onLoadingChange(isAnalyzing);
+  }, [isAnalyzing, onLoadingChange]);
 
-  const handleAnalyze = async () => {
-    if (!address.trim()) {
-      toast({
-        title: "Address Required",
-        description: "Please enter a wallet address or ENS name",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!isValidAddress(address)) {
-      toast({
-        title: "Invalid Address",
-        description: "Please enter a valid Ethereum address or ENS name",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsAnalyzing(true);
-    onLoadingChange(true);
-
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const persona = generateMockPersona(address);
+  React.useEffect(() => {
+    if (persona) {
       onPersonaGenerated(persona);
-      
-      toast({
-        title: "Analysis Complete!",
-        description: "Your wallet persona has been generated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Analysis Failed",
-        description: "Failed to analyze wallet. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsAnalyzing(false);
-      onLoadingChange(false);
     }
+  }, [persona, onPersonaGenerated]);
+
+  const handleAnalyze = () => {
+    analyzeWallet(address);
   };
 
   const demoAddresses = [
@@ -95,12 +59,12 @@ const WalletInput: React.FC<WalletInputProps> = ({ onPersonaGenerated, onLoading
               {isAnalyzing ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Analyzing...
+                  Analyzing Blockchain...
                 </>
               ) : (
                 <>
-                  <Search className="w-5 h-5 mr-2" />
-                  Generate Persona
+                  <Database className="w-5 h-5 mr-2" />
+                  Generate Real Persona
                 </>
               )}
             </Button>
@@ -122,6 +86,21 @@ const WalletInput: React.FC<WalletInputProps> = ({ onPersonaGenerated, onLoading
               </Button>
             ))}
           </div>
+
+          {/* Real-time Analysis Status */}
+          {isAnalyzing && (
+            <div className="bg-white/5 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-white">Real-time Blockchain Analysis</h4>
+                  <p className="text-xs text-gray-300">
+                    Fetching transaction history, NFT collections, and DeFi interactions...
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Card>
