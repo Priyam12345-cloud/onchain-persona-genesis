@@ -1,4 +1,3 @@
-
 import { Persona, WalletStats, JourneyEvent, Recommendation, PersonaCategory } from '@/types/persona';
 import { BlockchainProvider } from './blockchainService';
 
@@ -63,7 +62,7 @@ export class PersonaAnalysisService {
     
     const uniqueProtocols = new Set(transactions.map(tx => tx.contractAddress).filter(Boolean)).size;
     const nftCollections = new Set(nfts.map(nft => nft.contractAddress)).size;
-    const defiInteractions = defiInteractions.length;
+    const defiInteractionCount = defiInteractions.length;
     const averageGasSpent = transactions.reduce((sum, tx) => sum + parseFloat(tx.gasUsed || '0'), 0) / Math.max(totalTransactions, 1);
 
     return {
@@ -73,7 +72,7 @@ export class PersonaAnalysisService {
       lastTransaction,
       uniqueProtocols,
       nftCollections,
-      defiInteractions,
+      defiInteractions: defiInteractionCount,
       averageGasSpent
     };
   }
