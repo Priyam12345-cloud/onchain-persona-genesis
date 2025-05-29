@@ -383,3 +383,14 @@ export class PersonaAnalysisService {
     return recommendations;
   }
 }
+
+// Replace mockData usage with real API calls:
+export async function fetchPersona(address: string) {
+  const res = await fetch(`/api/persona/${address}`);
+  return await res.json();
+}
+
+export async function fetchSummary(address: string) {
+  const res = await fetch(`/api/summary/${address}`);
+  return await res.json();
+}
