@@ -384,13 +384,40 @@ export class PersonaAnalysisService {
   }
 }
 
-// Replace mockData usage with real API calls:
+// Replace mockData usage with real API call to backend for hardcoded persona
 export async function fetchPersona(address: string) {
-  const res = await fetch(`/api/persona/${address}`);
-  return await res.json();
+  // For now, always fetch the hardcoded persona from the backend
+  const res = await fetch(`https://kgen-backend.onrender.com/api/persona/0x00000000219ab540356cbb839cbe05303d7705fa`);
+  const data = await res.json();
+  // Map backend data to a simplified Persona object for the frontend
+  return {
+    address: data.address,
+    totalNetworth: data.total_networth,
+    nativeBalance: data.native_balance,
+    tokenBalanceUsd: data.token_balance_usd,
+    chain: data.chain,
+    tokenRatio: data.token_ratio,
+    transactionsTotal: data.transactions_total,
+    nftTransfersTotal: data.nft_transfers_total,
+    tokenTransfersTotal: data.token_transfers_total,
+    nftCount: data.nft_count,
+    nftCollections: data.nft_collections,
+    tokenCount: data.token_count,
+    topTokens: data.top_tokens,
+    defiProtocols: data.defi_protocols,
+    totalDefiUsd: data.total_defi_usd,
+    uniqueNftCollections: data.unique_nft_collections,
+    activityScore: data.activity_score,
+    walletHealthScore: data.wallet_health_score,
+    riskScore: data.risk_score,
+    socialHandle: data.social_handle,
+    recommendations: data.recommendations,
+    personaProfile: data.persona_profile,
+    classifications: data.classifications
+  };
 }
 
 export async function fetchSummary(address: string) {
-  const res = await fetch(`/api/summary/${address}`);
-  return await res.json();
+  // Not implemented yet
+  return { error: 'Summary not implemented' };
 }
