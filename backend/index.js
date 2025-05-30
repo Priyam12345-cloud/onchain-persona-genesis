@@ -1,8 +1,13 @@
+import { fileURLToPath } from 'url';
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import { generateMockPersona } from './personaGenerator.js';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 10000;
