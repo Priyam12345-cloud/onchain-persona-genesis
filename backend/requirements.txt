@@ -1,0 +1,3 @@
+# Python dependencies for persona generation
+requests
+# Add any other dependencies your script needs
