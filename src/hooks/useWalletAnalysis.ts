@@ -1,29 +1,22 @@
+
 import { useState } from 'react';
 import { Persona } from '@/types/persona';
-import { PersonaAnalysisService } from '@/services/personaAnalysisService';
-import { AlchemyProvider } from '@/services/blockchainService';
+import { PythonDataService } from '@/services/pythonDataService';
 import { useToast } from '@/hooks/use-toast';
 
 export const useWalletAnalysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [persona, setPersona] = useState<Persona | null>(null);
+  const [availableWallets, setAvailableWallets] = useState<string[]>([]);
   const { toast } = useToast();
+
+  const pythonService = new PythonDataService();
 
   const analyzeWallet = async (address: string) => {
     if (!address.trim()) {
       toast({
         title: "Address Required",
-        description: "Please enter a wallet address or ENS name",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(address) || address.endsWith('.eth');
-    if (!isValidAddress) {
-      toast({
-        title: "Invalid Address",
-        description: "Please enter a valid Ethereum address or ENS name",
+        description: "Please enter a wallet address",
         variant: "destructive"
       });
       return;
@@ -32,39 +25,53 @@ export const useWalletAnalysis = () => {
     setIsAnalyzing(true);
     
     try {
-      // For demo purposes, we'll use a fallback API key or demo mode
-      // In production, this would come from environment variables
-      const apiKey = 'demo-key'; // This would be replaced with actual API key
-      const provider = new AlchemyProvider(apiKey);
-      const analysisService = new PersonaAnalysisService(provider);
-      
-      const result = await analysisService.analyzeWallet(address);
+      toast({
+        title: "Analyzing Wallet",
+        description: "Running Python analysis on real blockchain data...",
+      });
+
+      // Use Python data service to get real analysis
+      const result = await pythonService.analyzeWallet(address);
       setPersona(result);
       
       toast({
         title: "Analysis Complete!",
-        description: "Your wallet persona has been generated successfully",
+        description: "Wallet persona generated using real blockchain data",
       });
     } catch (error) {
-      console.error('Analysis failed:', error);
+      console.error('Python analysis failed:', error);
+      
       toast({
         title: "Analysis Failed",
-        description: "Failed to analyze wallet. Using demo data for now.",
+        description: "Could not connect to Python analysis service. Please ensure your backend is running.",
         variant: "destructive"
       });
-      // Fallback to backend API if real analysis fails
+
+      // Fallback to mock data if Python service fails
       try {
-        const res = await fetch(`/api/persona/${address}`);
-        const persona = await res.json();
-        setPersona(persona);
-      } catch (apiError) {
-        // Fallback to mock data if backend also fails
         const { generateMockPersona } = await import('@/utils/mockData');
         const mockPersona = generateMockPersona(address);
         setPersona(mockPersona);
+        
+        toast({
+          title: "Using Demo Data",
+          description: "Showing demo persona while Python service is unavailable",
+          variant: "destructive"
+        });
+      } catch (mockError) {
+        console.error('Even mock data failed:', mockError);
       }
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const loadAvailableWallets = async () => {
+    try {
+      const wallets = await pythonService.getAvailableWallets();
+      setAvailableWallets(wallets);
+    } catch (error) {
+      console.error('Failed to load available wallets:', error);
     }
   };
 
@@ -72,6 +79,8 @@ export const useWalletAnalysis = () => {
     analyzeWallet,
     isAnalyzing,
     persona,
-    setPersona
+    setPersona,
+    availableWallets,
+    loadAvailableWallets
   };
 };
