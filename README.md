@@ -2,6 +2,11 @@
 
 ![App Banner](src/images/IMG-20250530-WA0032.jpg)
 
+
+## Live Demo
+- **Streamlit App:** [https://kgen-wallet-persona.streamlit.app/](https://kgen-wallet-persona.streamlit.app/)
+- **Backend API:** [https://kgen-backend.onrender.com](https://kgen-backend.onrender.com)
+
 ## Overview
 Onchain Persona Genesis is a full-stack, AI-powered wallet persona web app designed for hackathons and rapid prototyping. It dynamically analyzes any Ethereum wallet address, generates a rich persona profile using both onchain data and advanced AI models, and presents the results in a beautiful, interactive dashboard.
 
@@ -42,17 +47,15 @@ Onchain Persona Genesis is a full-stack, AI-powered wallet persona web app desig
 
 ### 1. Landing Page & Wallet Input
 ![Landing](src/images/IMG-20250530-WA0033.jpg)
-
-### 2. Persona Profile & AI Summary
-![Persona Profile](src/images/IMG-20250530-WA0034.jpg)
-
-### 3. Portfolio Visualization
 ![Portfolio](src/images/IMG-20250530-WA0035.jpg)
 
-### 4. Risk & Activity Analysis
+### 2. Persona Profile, Portfolio Visualization & AI Summary 
+![Persona Profile](src/images/IMG-20250530-WA0034.jpg)
+
+### 3. Risk & Activity Analysis
 ![Risk & Activity](src/images/IMG-20250530-WA0036.jpg)
 
-### 5. Recommendations & Timeline
+### 4. Recommendations & Timeline
 ![Recommendations](src/images/WhatsApp%20Image%202025-05-30%20at%2021.58.43_c6afe8a0.jpg)
 
 ---
@@ -73,7 +76,7 @@ Onchain Persona Genesis is a full-stack, AI-powered wallet persona web app desig
 
 ### 1. Clone the Repo
 ```sh
-git clone <your-repo-url>
+git clone https://github.com/Thunder25Beast/onchain-persona-genesis
 cd onchain-persona-genesis
 ```
 
