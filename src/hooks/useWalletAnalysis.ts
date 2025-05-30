@@ -8,6 +8,7 @@ export const useWalletAnalysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [persona, setPersona] = useState<Persona | null>(null);
   const [availableWallets, setAvailableWallets] = useState<string[]>([]);
+  const [analysisProgress, setAnalysisProgress] = useState<string>('');
   const { toast } = useToast();
 
   const pythonService = new PythonDataService();
@@ -23,31 +24,38 @@ export const useWalletAnalysis = () => {
     }
 
     setIsAnalyzing(true);
+    setAnalysisProgress('Initializing analysis...');
     
     try {
       toast({
-        title: "Analyzing Wallet",
-        description: "Running Python analysis on real blockchain data...",
+        title: "Starting Analysis",
+        description: "Executing Python analysis script with Flask backend...",
       });
 
-      // Use Python data service to get real analysis
+      setAnalysisProgress('Loading wallet data from CSV files...');
+      
+      // Use Flask backend to get real analysis
       const result = await pythonService.analyzeWallet(address);
       setPersona(result);
       
-      toast({
-        title: "Analysis Complete!",
-        description: "Wallet persona generated using real blockchain data",
-      });
-    } catch (error) {
-      console.error('Python analysis failed:', error);
+      setAnalysisProgress('Analysis complete!');
       
       toast({
-        title: "Analysis Failed",
-        description: "Could not connect to Python analysis service. Please ensure your backend is running.",
+        title: "Analysis Complete!",
+        description: "Wallet persona generated using Flask backend with real CSV data",
+      });
+    } catch (error) {
+      console.error('Flask analysis failed:', error);
+      
+      setAnalysisProgress('Analysis failed - using fallback data');
+      
+      toast({
+        title: "Backend Connection Failed",
+        description: "Could not connect to Flask backend. Please ensure your Python server is running on localhost:5000",
         variant: "destructive"
       });
 
-      // Fallback to mock data if Python service fails
+      // Fallback to mock data if Flask service fails
       try {
         const { generateMockPersona } = await import('@/utils/mockData');
         const mockPersona = generateMockPersona(address);
@@ -55,11 +63,12 @@ export const useWalletAnalysis = () => {
         
         toast({
           title: "Using Demo Data",
-          description: "Showing demo persona while Python service is unavailable",
+          description: "Showing demo persona while Flask backend is unavailable",
           variant: "destructive"
         });
       } catch (mockError) {
         console.error('Even mock data failed:', mockError);
+        setAnalysisProgress('Analysis failed completely');
       }
     } finally {
       setIsAnalyzing(false);
@@ -68,10 +77,23 @@ export const useWalletAnalysis = () => {
 
   const loadAvailableWallets = async () => {
     try {
+      setAnalysisProgress('Loading available wallets from CSV...');
       const wallets = await pythonService.getAvailableWallets();
       setAvailableWallets(wallets);
+      setAnalysisProgress('');
     } catch (error) {
       console.error('Failed to load available wallets:', error);
+      setAnalysisProgress('Failed to load wallets');
+    }
+  };
+
+  const checkAnalysisStatus = async (address: string) => {
+    try {
+      const status = await pythonService.getAnalysisStatus(address);
+      return status;
+    } catch (error) {
+      console.error('Failed to check analysis status:', error);
+      return { status: 'unknown' };
     }
   };
 
@@ -81,6 +103,8 @@ export const useWalletAnalysis = () => {
     persona,
     setPersona,
     availableWallets,
-    loadAvailableWallets
+    loadAvailableWallets,
+    analysisProgress,
+    checkAnalysisStatus
   };
 };

@@ -2,14 +2,10 @@
 import React, { useState } from 'react';
 import WalletInput from '@/components/WalletInput';
 import PersonaDisplay from '@/components/PersonaDisplay';
+import InteractiveAnalyticsDashboard from '@/components/InteractiveAnalyticsDashboard';
 import WalletJourney from '@/components/WalletJourney';
 import RecommendationsPanel from '@/components/RecommendationsPanel';
 import RiskAssessment from '@/components/RiskAssessment';
-import PortfolioChart from '@/components/PortfolioChart';
-import ActivityTimeline from '@/components/ActivityTimeline';
-import ScoreComparison from '@/components/ScoreComparison';
-import InteractiveStats from '@/components/InteractiveStats';
-import WalletComparison from '@/components/WalletComparison';
 import { Persona } from '@/types/persona';
 
 const Index = () => {
@@ -43,15 +39,15 @@ const Index = () => {
             <div className="mt-6 flex justify-center space-x-4 text-sm text-gray-400">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>Live Blockchain Data</span>
+                <span>Live Python Analysis</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                <span>AI-Powered Analysis</span>
+                <span>AI-Powered Insights</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span>Real-time Insights</span>
+                <span>Interactive Visualizations</span>
               </div>
             </div>
           </div>
@@ -71,18 +67,12 @@ const Index = () => {
             <PersonaDisplay persona={currentPersona} isLoading={isLoading} />
           </div>
 
-          {/* Interactive Analytics Section */}
-          <div className="mb-8">
-            <InteractiveStats persona={currentPersona} isLoading={isLoading} />
-          </div>
-
-          {/* Charts and Visualizations Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <PortfolioChart persona={currentPersona} isLoading={isLoading} />
-            <ActivityTimeline persona={currentPersona} isLoading={isLoading} />
-            <ScoreComparison persona={currentPersona} isLoading={isLoading} />
-            <WalletComparison persona={currentPersona} isLoading={isLoading} />
-          </div>
+          {/* Interactive Analytics Dashboard */}
+          {currentPersona && (
+            <div className="mb-8">
+              <InteractiveAnalyticsDashboard persona={currentPersona} isLoading={isLoading} />
+            </div>
+          )}
 
           {/* Detailed Analysis Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -105,54 +95,41 @@ const Index = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-4">
-              Real Blockchain Intelligence
+              Advanced Blockchain Intelligence
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Our engine connects to live blockchain data to provide authentic insights into wallet behavior and Web3 activity patterns.
+              Our Flask backend executes sophisticated Python analysis on your CSV datasets to provide authentic insights into wallet behavior and Web3 activity patterns.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard
-              icon="🔗"
-              title="Live Blockchain Data"
-              description="Direct integration with Ethereum mainnet, fetching real transaction history, NFT holdings, and DeFi interactions in real-time."
+              icon="🐍"
+              title="Python-Powered Analysis"
+              description="Advanced machine learning algorithms analyze wallet patterns using your comprehensive CSV datasets with real transaction history."
             />
             <FeatureCard
-              icon="🤖"
-              title="AI Pattern Recognition"
-              description="Advanced algorithms analyze transaction patterns, gas optimization, and protocol usage to identify behavioral traits and investment strategies."
+              icon="📊"
+              title="Interactive Visualizations"
+              description="Rich, interactive charts and graphs showing portfolio composition, risk metrics, and performance analysis with real-time updates."
             />
             <FeatureCard
-              icon="📈"
-              title="Risk & Health Scoring"
-              description="Comprehensive risk assessment based on actual wallet activity, protocol diversity, and transaction consistency patterns."
+              icon="🎯"
+              title="AI-Generated Personas"
+              description="Sophisticated persona generation using machine learning models that understand complex Web3 behavioral patterns."
             />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
             <FeatureCard
-              icon="🎯"
-              title="Smart Recommendations"
-              description="Personalized dApp suggestions based on your actual on-chain behavior, portfolio composition, and interaction history."
+              icon="🔄"
+              title="Real-Time Processing"
+              description="Flask backend processes your Python scripts in real-time, providing instant analysis results from your comprehensive wallet datasets."
             />
-            <FeatureCard
-              icon="📊"
-              title="Portfolio Analytics"
-              description="Deep insights into your Web3 journey, including protocol diversity, gas efficiency, and investment timeline analysis."
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
             <FeatureCard
               icon="📈"
-              title="Interactive Visualizations"
-              description="Dynamic charts and graphs showing portfolio composition, activity timelines, and performance metrics with real-time updates."
-            />
-            <FeatureCard
-              icon="⚔️"
-              title="Wallet Comparison"
-              description="Compare your wallet metrics against others to identify strengths, weaknesses, and improvement opportunities."
+              title="Advanced Analytics"
+              description="Deep insights including risk assessment, health scoring, portfolio optimization, and behavioral classification using ML algorithms."
             />
           </div>
         </div>

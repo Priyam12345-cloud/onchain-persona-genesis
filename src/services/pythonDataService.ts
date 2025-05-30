@@ -4,16 +4,16 @@ import { Persona, WalletStats, JourneyEvent, Recommendation, PersonaCategory } f
 export class PythonDataService {
   private apiEndpoint: string;
 
-  constructor(apiEndpoint: string = '/api/wallet-analysis') {
+  constructor(apiEndpoint: string = 'http://localhost:5000') {
     this.apiEndpoint = apiEndpoint;
   }
 
   async analyzeWallet(walletAddress: string): Promise<Persona> {
-    console.log('Analyzing wallet with Python script:', walletAddress);
+    console.log('Analyzing wallet with Flask backend:', walletAddress);
 
     try {
-      // Call your backend API that runs test(3).py
-      const response = await fetch(`${this.apiEndpoint}/${walletAddress}`, {
+      // Call your Flask backend API
+      const response = await fetch(`${this.apiEndpoint}/analyze/${walletAddress}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -24,52 +24,56 @@ export class PythonDataService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const pythonData = await response.json();
-      console.log('Received Python data:', pythonData);
+      const flaskData = await response.json();
+      console.log('Received Flask data:', flaskData);
 
-      // Transform Python data to frontend format
-      return this.transformPythonDataToPersona(walletAddress, pythonData);
+      // Transform Flask data to frontend format
+      return this.transformFlaskDataToPersona(walletAddress, flaskData);
     } catch (error) {
-      console.error('Error calling Python analysis:', error);
+      console.error('Error calling Flask analysis:', error);
       throw error;
     }
   }
 
-  private transformPythonDataToPersona(address: string, pythonData: any): Persona {
-    // Transform the Python script output to match our Persona interface
+  private transformFlaskDataToPersona(address: string, flaskData: any): Persona {
+    // Extract features from Flask response
+    const features = flaskData.features || {};
+    const analysis = flaskData.analysis || {};
+    const classifications = flaskData.classifications || [];
+
     const stats: WalletStats = {
-      totalTransactions: pythonData.activity_score || 0,
-      totalVolume: pythonData.total_networth || 0,
-      firstTransaction: new Date(), // You might need to add this to your Python data
+      totalTransactions: features.activity_score || 0,
+      totalVolume: features.total_networth || 0,
+      firstTransaction: new Date(), // You might want to add this to your Python script
       lastTransaction: new Date(),
-      uniqueProtocols: pythonData.defi_protocols || 0,
-      nftCollections: pythonData.unique_nft_collections || 0,
-      defiInteractions: pythonData.defi_protocols || 0,
-      averageGasSpent: 30 // You might need to calculate this in Python
+      uniqueProtocols: features.defi_protocols || 0,
+      nftCollections: features.unique_nft_collections || 0,
+      defiInteractions: features.defi_protocols || 0,
+      averageGasSpent: 30 // You might want to calculate this in Python
     };
 
-    // Determine persona category based on Python classifications
-    const category: PersonaCategory = this.determinePersonaFromClassifications(
-      pythonData.classifications || [],
-      pythonData
+    // Determine persona category based on Flask classifications
+    const category: PersonaCategory = this.determinePersonaFromFlaskData(
+      classifications,
+      features
     );
 
-    // Generate journey events from Python data
-    const journey: JourneyEvent[] = this.generateJourneyFromPythonData(pythonData);
+    // Generate journey events from Flask data
+    const journey: JourneyEvent[] = this.generateJourneyFromFlaskData(features, analysis);
 
-    // Generate recommendations based on Python analysis
-    const recommendations: Recommendation[] = this.generateRecommendationsFromPythonData(pythonData);
+    // Generate recommendations based on Flask analysis
+    const recommendations: Recommendation[] = this.generateRecommendationsFromFlaskData(features, analysis);
 
-    // Extract traits from Python classifications and data
-    const traits = this.extractTraitsFromPythonData(pythonData);
+    // Extract traits from Flask classifications and data
+    const traits = this.extractTraitsFromFlaskData(features, classifications);
 
     return {
       address,
       category,
-      riskScore: pythonData.risk_score || 50,
-      healthScore: pythonData.wallet_health_score || 50,
-      aiGeneratedBio: this.generateBioFromPythonData(pythonData),
-      suggestedHandle: pythonData.social_handle || this.generateHandleFromData(pythonData),
+      riskScore: features.risk_score || 50,
+      healthScore: features.wallet_health_score || 50,
+      aiGeneratedBio: analysis.persona_text || this.generateBioFromFlaskData(features),
+      suggestedHandle: features.social_handle || this.generateHandleFromFlaskData(features),
       traits,
       stats,
       journey,
@@ -77,12 +81,12 @@ export class PythonDataService {
     };
   }
 
-  private determinePersonaFromClassifications(classifications: string[], data: any): PersonaCategory {
+  private determinePersonaFromFlaskData(classifications: string[], features: any): PersonaCategory {
     let primary = 'Retail Trader';
     let confidence = 70;
     const secondary: string[] = [];
 
-    // Map Python classifications to persona categories
+    // Map Flask classifications to persona categories
     const classificationMap: { [key: string]: string } = {
       'whale': 'DeFi Whale',
       'defi_user': 'DeFi Farmer',
@@ -90,7 +94,9 @@ export class PythonDataService {
       'dao_participant': 'DAO Participant',
       'trader': 'Retail Trader',
       'hodler': 'HODLer',
-      'institutional': 'Institutional Investor'
+      'institutional': 'Institutional Investor',
+      'high_value': 'DeFi Whale',
+      'active_trader': 'Retail Trader'
     };
 
     // Find primary classification
@@ -103,124 +109,147 @@ export class PythonDataService {
       }
     }
 
-    // Add secondary traits based on data
-    if (data.total_networth > 1000000) secondary.push('High Net Worth');
-    if (data.unique_nft_collections > 5) secondary.push('NFT Enthusiast');
-    if (data.defi_protocols > 3) secondary.push('DeFi User');
-    if (data.token_count > 20) secondary.push('Token Diversifier');
+    // Add secondary traits based on Flask data
+    if (features.total_networth > 1000000) secondary.push('High Net Worth');
+    if (features.unique_nft_collections > 5) secondary.push('NFT Enthusiast');
+    if (features.defi_protocols > 3) secondary.push('DeFi User');
+    if (features.token_count > 20) secondary.push('Token Diversifier');
+    if (features.activity_score > 1000) secondary.push('High Activity');
 
     return { primary, secondary, confidence };
   }
 
-  private generateJourneyFromPythonData(data: any): JourneyEvent[] {
+  private generateJourneyFromFlaskData(features: any, analysis: any): JourneyEvent[] {
     const events: JourneyEvent[] = [];
 
-    // Create journey events based on Python data
-    if (data.total_networth > 0) {
+    // Create journey events based on Flask data
+    if (features.total_networth > 0) {
       events.push({
         date: new Date(),
         type: 'social',
-        description: `Portfolio worth $${data.total_networth.toLocaleString()}`,
-        significance: data.total_networth > 100000 ? 'high' : 'medium',
-        amount: data.total_networth
+        description: `Portfolio worth $${features.total_networth.toLocaleString()}`,
+        significance: features.total_networth > 100000 ? 'high' : 'medium',
+        amount: features.total_networth
       });
     }
 
-    if (data.defi_protocols > 0) {
+    if (features.defi_protocols > 0) {
       events.push({
         date: new Date(),
         type: 'defi',
-        description: `Active in ${data.defi_protocols} DeFi protocols with $${data.total_defi_usd?.toLocaleString() || '0'}`,
+        description: `Active in ${features.defi_protocols} DeFi protocols with $${features.total_defi_usd?.toLocaleString() || '0'}`,
         significance: 'high',
-        amount: data.total_defi_usd
+        amount: features.total_defi_usd,
+        protocol: 'DeFi Ecosystem'
       });
     }
 
-    if (data.unique_nft_collections > 0) {
+    if (features.unique_nft_collections > 0) {
       events.push({
         date: new Date(),
         type: 'nft',
-        description: `Owns ${data.unique_nft_collections} unique NFT collections`,
+        description: `Owns ${features.unique_nft_collections} unique NFT collections`,
         significance: 'medium'
       });
     }
 
-    if (data.top_tokens && data.top_tokens.length > 0) {
+    if (features.top_tokens && features.top_tokens.length > 0) {
       events.push({
         date: new Date(),
         type: 'social',
-        description: `Top holdings: ${data.top_tokens.slice(0, 3).join(', ')}`,
+        description: `Top holdings: ${features.top_tokens.slice(0, 3).join(', ')}`,
         significance: 'medium'
+      });
+    }
+
+    if (features.native_balance > 1) {
+      events.push({
+        date: new Date(),
+        type: 'social',
+        description: `Holds ${features.native_balance.toFixed(2)} ${features.chain?.toUpperCase() || 'ETH'}`,
+        significance: 'medium',
+        amount: features.native_balance
       });
     }
 
     return events.slice(0, 10); // Limit to 10 events
   }
 
-  private generateRecommendationsFromPythonData(data: any): Recommendation[] {
+  private generateRecommendationsFromFlaskData(features: any, analysis: any): Recommendation[] {
     const recommendations: Recommendation[] = [];
 
-    // Generate recommendations based on Python analysis
-    if (data.risk_score > 70) {
+    // Generate recommendations based on Flask analysis
+    if (features.risk_score > 70) {
       recommendations.push({
         type: 'defi',
         title: 'Risk Management Tools',
         description: 'Consider using portfolio hedging strategies to reduce risk exposure',
         confidence: 80,
-        reasoning: 'Your risk score indicates high exposure that could benefit from risk management'
+        reasoning: `Your risk score of ${features.risk_score} indicates high exposure that could benefit from risk management`
       });
     }
 
-    if (data.defi_protocols > 0 && data.total_defi_usd > 10000) {
+    if (features.defi_protocols > 0 && features.total_defi_usd > 10000) {
       recommendations.push({
         type: 'defi',
         title: 'Yield Optimization',
         description: 'Explore advanced yield farming strategies for your DeFi portfolio',
         confidence: 85,
-        reasoning: `Your $${data.total_defi_usd?.toLocaleString()} in DeFi shows active engagement`
+        reasoning: `Your $${features.total_defi_usd?.toLocaleString()} in DeFi shows active engagement across ${features.defi_protocols} protocols`
       });
     }
 
-    if (data.unique_nft_collections > 3) {
+    if (features.unique_nft_collections > 3) {
       recommendations.push({
         type: 'nft',
         title: 'NFT Portfolio Management',
         description: 'Use NFT analytics tools to track floor prices and market trends',
         confidence: 75,
-        reasoning: `Your ${data.unique_nft_collections} NFT collections could benefit from better tracking`
+        reasoning: `Your ${features.unique_nft_collections} NFT collections could benefit from better tracking`
       });
     }
 
-    if (data.token_count > 15) {
+    if (features.token_count > 15) {
       recommendations.push({
         type: 'dapp',
         title: 'Portfolio Rebalancing',
         description: 'Consider consolidating your token holdings for better management',
         confidence: 70,
-        reasoning: `With ${data.token_count} tokens, portfolio simplification might improve returns`
+        reasoning: `With ${features.token_count} tokens, portfolio simplification might improve returns`
+      });
+    }
+
+    if (features.wallet_health_score < 50) {
+      recommendations.push({
+        type: 'dapp',
+        title: 'Wallet Health Improvement',
+        description: 'Focus on more consistent transaction patterns and diversification',
+        confidence: 75,
+        reasoning: `Your wallet health score of ${features.wallet_health_score} suggests room for improvement`
       });
     }
 
     return recommendations;
   }
 
-  private extractTraitsFromPythonData(data: any): string[] {
+  private extractTraitsFromFlaskData(features: any, classifications: string[]): string[] {
     const traits: string[] = [];
 
-    if (data.total_networth > 1000000) traits.push('High Net Worth');
-    if (data.total_networth > 100000) traits.push('Whale');
-    if (data.risk_score < 30) traits.push('Conservative');
-    if (data.risk_score > 70) traits.push('High Risk');
-    if (data.wallet_health_score > 80) traits.push('Healthy Portfolio');
-    if (data.defi_protocols > 5) traits.push('DeFi Native');
-    if (data.unique_nft_collections > 10) traits.push('NFT Collector');
-    if (data.token_count > 50) traits.push('Token Hoarder');
-    if (data.activity_score > 1000) traits.push('High Activity');
-    if (data.chain === 'ethereum') traits.push('Ethereum Native');
+    if (features.total_networth > 1000000) traits.push('High Net Worth');
+    if (features.total_networth > 100000) traits.push('Whale');
+    if (features.risk_score < 30) traits.push('Conservative');
+    if (features.risk_score > 70) traits.push('High Risk');
+    if (features.wallet_health_score > 80) traits.push('Healthy Portfolio');
+    if (features.defi_protocols > 5) traits.push('DeFi Native');
+    if (features.unique_nft_collections > 10) traits.push('NFT Collector');
+    if (features.token_count > 50) traits.push('Token Hoarder');
+    if (features.activity_score > 1000) traits.push('High Activity');
+    if (features.chain === 'ethereum') traits.push('Ethereum Native');
+    if (features.native_balance > 10) traits.push('ETH Holder');
 
     // Add classification-based traits
-    if (data.classifications) {
-      traits.push(...data.classifications.map((c: string) => 
+    if (classifications) {
+      traits.push(...classifications.map((c: string) => 
         c.charAt(0).toUpperCase() + c.slice(1).replace('_', ' ')
       ));
     }
@@ -228,28 +257,28 @@ export class PythonDataService {
     return [...new Set(traits)]; // Remove duplicates
   }
 
-  private generateBioFromPythonData(data: any): string {
-    const networth = data.total_networth || 0;
-    const chain = data.chain || 'blockchain';
-    const defiProtocols = data.defi_protocols || 0;
-    const nftCollections = data.unique_nft_collections || 0;
-    const tokenCount = data.token_count || 0;
+  private generateBioFromFlaskData(features: any): string {
+    const networth = features.total_networth || 0;
+    const chain = features.chain || 'blockchain';
+    const defiProtocols = features.defi_protocols || 0;
+    const nftCollections = features.unique_nft_collections || 0;
+    const tokenCount = features.token_count || 0;
 
     return `A ${chain} native with $${networth.toLocaleString()} in total portfolio value. ` +
            `This wallet demonstrates ${defiProtocols > 0 ? 'active DeFi engagement across ' + defiProtocols + ' protocols' : 'conservative trading patterns'} ` +
            `and ${nftCollections > 0 ? 'collects NFTs across ' + nftCollections + ' collections' : 'focuses on token trading'}. ` +
            `With ${tokenCount} different tokens, this user shows ${tokenCount > 20 ? 'diverse' : 'focused'} investment strategy ` +
-           `and maintains a ${data.wallet_health_score > 70 ? 'healthy' : 'moderate'} portfolio health score.`;
+           `and maintains a ${features.wallet_health_score > 70 ? 'healthy' : 'moderate'} portfolio health score.`;
   }
 
-  private generateHandleFromData(data: any): string {
+  private generateHandleFromFlaskData(features: any): string {
     const prefixes = ['Crypto', 'DeFi', 'NFT', 'Web3', 'Block'];
     const suffixes = ['Whale', 'Master', 'Pro', 'Sage', 'Trader'];
     
     let prefix = 'Crypto';
-    if (data.total_networth > 1000000) prefix = 'Whale';
-    else if (data.defi_protocols > 3) prefix = 'DeFi';
-    else if (data.unique_nft_collections > 5) prefix = 'NFT';
+    if (features.total_networth > 1000000) prefix = 'Whale';
+    else if (features.defi_protocols > 3) prefix = 'DeFi';
+    else if (features.unique_nft_collections > 5) prefix = 'NFT';
     
     const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
     const number = Math.floor(Math.random() * 999);
@@ -257,17 +286,32 @@ export class PythonDataService {
     return `${prefix}${suffix}${number}`;
   }
 
-  // Method to get available wallets from CSV files
+  // Method to get available wallets from Flask backend
   async getAvailableWallets(): Promise<string[]> {
     try {
-      const response = await fetch('/api/available-wallets');
+      const response = await fetch(`${this.apiEndpoint}/wallets`);
       if (!response.ok) {
         throw new Error('Failed to fetch available wallets');
       }
-      return await response.json();
+      const data = await response.json();
+      return data.wallets || [];
     } catch (error) {
       console.error('Error fetching available wallets:', error);
       return [];
+    }
+  }
+
+  // Method to get wallet analysis status
+  async getAnalysisStatus(walletAddress: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.apiEndpoint}/status/${walletAddress}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch analysis status');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching analysis status:', error);
+      return { status: 'unknown' };
     }
   }
 }
