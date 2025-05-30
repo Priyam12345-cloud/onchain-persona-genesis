@@ -6,6 +6,9 @@ from dataLoading import load_wallet_data, extract_wallet_features, classify_wall
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import login
 from visualization import generate_html_report
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 class WalletPersonaGenerator:
