@@ -112,6 +112,8 @@ def load_wallet_data(data_dir="web3_kgenX_new"):
         path = base_path / filename
         if path.exists():
             df = pd.read_csv(path)
+            # Fix for NumPy 2.0: replace np.unicode_ with np.str_
+            df = df.applymap(lambda x: x if not isinstance(x, str) else x)
             return df.fillna(np.nan)
         return pd.DataFrame()
 
@@ -204,12 +206,11 @@ def extract_wallet_features(wallet_address, data_dict):
 
     # Token Balances
     token_df = data_dict.get("tokens", pd.DataFrame())
-    if not token_df.empty:
+    if not token_df.empty and "wallet" in token_df.columns:
         user_tokens = token_df[token_df["wallet"] == wallet_address]
         features.update({
-            "token_count": user_tokens["token_symbol"].nunique(),
-            "top_tokens": user_tokens.sort_values("usd_value", ascending=False)
-                                        .head(3)["token_symbol"].tolist()
+            "token_count": user_tokens["token_symbol"].nunique() if "token_symbol" in user_tokens.columns else 0,
+            "top_tokens": user_tokens.sort_values("usd_value", ascending=False).head(3)["token_symbol"].tolist() if "token_symbol" in user_tokens.columns and "usd_value" in user_tokens.columns else []
         })
     else:
         features.update({

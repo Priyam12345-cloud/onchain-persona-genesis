@@ -1,73 +1,149 @@
-# Welcome to your Lovable project
+# 🦄 Onchain Persona Genesis
 
-## Project info
+![App Banner](src/images/IMG-20250530-WA0032.jpg)
 
-**URL**: https://lovable.dev/projects/0eccebd6-4377-42c4-9bc7-e64cbc167def
+## Overview
+Onchain Persona Genesis is a full-stack, AI-powered wallet persona web app designed for hackathons and rapid prototyping. It dynamically analyzes any Ethereum wallet address, generates a rich persona profile using both onchain data and advanced AI models, and presents the results in a beautiful, interactive dashboard.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## Key Features
+- **AI-Powered Persona Generation:**
+  - Uses HuggingFace's Mistral-7B-Instruct-v0.2 model to generate detailed, human-like wallet personas.
+  - Integrates onchain data (tokens, DeFi, NFTs, activity) for deep analysis.
+- **Dynamic Data Pipeline:**
+  - Fetches and processes wallet data from local CSVs and Moralis API.
+  - Extracts features, risk scores, and behavioral tags.
+- **Modern Frontend:**
+  - Built with React + TypeScript + Tailwind CSS for a responsive, hackathon-ready UI.
+  - Visualizes portfolio, risk, activity, and recommendations with interactive charts.
+- **Streamlit Data Science App:**
+  - Python-based dashboard for rapid prototyping and AI persona exploration.
+- **Backend API:**
+  - Node.js/Express server with Python integration for persona generation.
+  - Deployed on Render for easy cloud access.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0eccebd6-4377-42c4-9bc7-e64cbc167def) and start prompting.
+## Architecture
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+[User/Frontend] ⇄ [Express Backend API] ⇄ [Python AI/Feature Extraction] ⇄ [Moralis API/CSV Data]
 ```
 
-**Edit a file directly in GitHub**
+- **Frontend:** `src/` (React, TypeScript, Tailwind, modern UI components)
+- **Backend:** `backend/` (Node.js, Express, Python integration)
+- **Data Science/AI:** `backend/app.py`, `backend/wallet_persona_ai.py`, `backend/dataLoading.py`
+- **Data:** `backend/web3_kgenX_new/` (CSV files for tokens, net worth, stats, etc.)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## Visual Walkthrough
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 1. Landing Page & Wallet Input
+![Landing](src/images/IMG-20250530-WA0033.jpg)
 
-## What technologies are used for this project?
+### 2. Persona Profile & AI Summary
+![Persona Profile](src/images/IMG-20250530-WA0034.jpg)
 
-This project is built with:
+### 3. Portfolio Visualization
+![Portfolio](src/images/IMG-20250530-WA0035.jpg)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 4. Risk & Activity Analysis
+![Risk & Activity](src/images/IMG-20250530-WA0036.jpg)
 
-## How can I deploy this project?
+### 5. Recommendations & Timeline
+![Recommendations](src/images/WhatsApp%20Image%202025-05-30%20at%2021.58.43_c6afe8a0.jpg)
 
-Simply open [Lovable](https://lovable.dev/projects/0eccebd6-4377-42c4-9bc7-e64cbc167def) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## How It Works
 
-Yes, you can!
+1. **User enters a wallet address** in the web UI or Streamlit app.
+2. **Backend fetches and processes data** from local CSVs and/or Moralis API.
+3. **Feature extraction** computes net worth, DeFi/NFT stats, activity, and risk.
+4. **AI persona generation** (optional):
+   - The backend or Streamlit app loads the Mistral-7B model via HuggingFace.
+   - Generates a markdown persona profile based on extracted features.
+5. **Frontend displays** persona, scores, portfolio, and recommendations with interactive charts and beautiful UI.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Setup & Usage
+
+### 1. Clone the Repo
+```sh
+git clone <your-repo-url>
+cd onchain-persona-genesis
+```
+
+### 2. Install Dependencies
+- **Backend:**
+  ```sh
+  cd backend
+  pip install -r requirements.txt
+  npm install
+  ```
+- **Frontend:**
+  ```sh
+  npm install
+  ```
+
+### 3. Run Locally
+- **Streamlit App (Data Science/AI):**
+  ```sh
+  cd backend
+  streamlit run app.py
+  ```
+- **Fullstack Web App:**
+  - Start backend: `node index.js` (or deploy to Render)
+  - Start frontend: `npm run dev`
+
+### 4. Deploy
+- **Backend:** Deploy `backend/` to Render (see backend/Procfile and deployment notes)
+- **Frontend:** Deploy to Vercel/Netlify or your preferred platform
+- **Streamlit:** Deploy `app.py` to [Streamlit Community Cloud](https://streamlit.io/cloud)
+
+---
+
+## AI Persona Generation Details
+- Uses HuggingFace's Mistral-7B-Instruct-v0.2 for persona markdown.
+- Requires a HuggingFace access token (set in code or via UI).
+- Persona includes:
+  - Crypto identity, trading style, risk profile, blockchain preferences
+  - Personalized recommendations
+  - Markdown output for easy display
+
+---
+
+## Data Sources
+- **Local CSVs:** `backend/web3_kgenX_new/`
+- **Moralis API:** For live wallet data (requires `MORALIS_API_KEY` in `.env`)
+
+---
+
+## File Structure (Key Parts)
+```
+backend/
+  app.py                # Streamlit dashboard
+  wallet_persona_ai.py  # AI persona generator (was test.py)
+  dataLoading.py        # Feature extraction & data loading
+  web3_kgenX_new/       # CSV data
+  requirements.txt      # Python dependencies
+  index.js              # Node.js backend (Express)
+
+src/
+  components/           # React UI components
+  images/               # App screenshots & illustrations
+```
+
+---
+
+## Credits & Acknowledgements
+- Built for hackathons and rapid prototyping by Team DeFiScore.
+- Uses open-source models and APIs: HuggingFace, Moralis, Mistral-7B, React, Streamlit, Plotly.
+
+---
+
+## License
+MIT
